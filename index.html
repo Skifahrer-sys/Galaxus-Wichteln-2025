@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wichteln 🎁</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 50px 20px;
+        overflow: hidden;
+        position: relative;
+        background: radial-gradient(ellipse at bottom, #1e3c72 0%, #2a5298 100%); /* Winterhimmel */
+        color: #fff;
+    }
+
+    h1 {
+        color: #ffecb3;
+        text-shadow: 2px 2px #000;
+        font-size: 3em;
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    select, button {
+        padding: 12px 20px;
+        margin: 10px;
+        font-size: 16px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    select {
+        background-color: #fff;
+        color: #000;
+    }
+
+    button {
+        background-color: #c62828;
+        color: white;
+        font-weight: bold;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+        background-color: #e53935;
+    }
+
+    #result, #fullList {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 15px;
+        background-color: rgba(10, 25, 70, 0.85);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+        animation: fadeIn 1s ease;
+        z-index: 1;
+        position: relative;
+        color: #fff;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        margin: 5px 0;
+        padding: 5px;
+        background-color: rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px);}
+        to { opacity: 1; transform: translateY(0);}
+    }
+
+    .icon {
+        font-size: 24px;
+        margin: 0 5px;
+        animation: bounce 1.5s infinite alternate;
+    }
+
+    @keyframes bounce {
+        from { transform: translateY(0);}
+        to { transform: translateY(-10px);}
+    }
+
+    /* Schneefall */
+    .snowflake {
+        position: absolute;
+        top: -10px;
+        color: #fff;
+        font-size: 1em;
+        user-select: none;
+        z-index: 0;
+        pointer-events: none;
+        animation-name: fall;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+    }
+
+    @keyframes fall {
+        0% { transform: translateY(0) translateX(0); }
+        100% { transform: translateY(100vh) translateX(30px); }
+    }
+
+    /* Sterne */
+    .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: white;
+        border-radius: 50%;
+        opacity: 0.8;
+        animation: twinkle 2s infinite alternate;
+    }
+
+    @keyframes twinkle {
+        from { opacity: 0.3; }
+        to { opacity: 1; }
+    }
+
+</style>
+</head>
+<body>
+
+<h1>Wichteln 🎁</h1>
+<span class="icon">🎄</span><span class="icon">❄️</span><span class="icon">🎅</span>
+
+<label for="nameSelect">Dein Name:</label>
+<select id="nameSelect">
+    <option value="" disabled selected>Wähle deinen Namen</option>
+</select>
+
+<button onclick="revealSecret()">Deinen Wichtel anzeigen</button>
+<button onclick="revealAll()">Komplettes Wichteln auflösen</button>
+
+<div id="result"></div>
+<div id="fullList"></div>
+
+<script>
+// Teilnehmer-Liste
+const participants = ["Anna", "Ben", "Clara", "David", "Eva", "Felix", "Greta"];
+
+// Zufällige Wichtel-Zuordnung
+let assignments = {};
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function assignSecretSanta() {
+    let givers = [...participants];
+    let receivers = shuffle([...participants]);
+    
+    for (let i = 0; i < givers.length; i++) {
+        if (givers[i] === receivers[i]) {
+            return assignSecretSanta();
+        }
+        assignments[givers[i]] = receivers[i];
+    }
+}
+
+assignSecretSanta();
+
+// Drop-Down Menü befüllen
+const select = document.getElementById("nameSelect");
+participants.forEach(name => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    select.appendChild(option);
+});
+
+// Einzelnen Wichtel anzeigen
+function revealSecret() {
+    const name = select.value;
+    if (name) {
+        document.getElementById("result").innerHTML = `🎁 Dein Wichtel ist: <strong>${assignments[name]}</strong> 🎁`;
+    } else {
+        alert("Bitte wähle zuerst deinen Namen aus!");
+    }
+}
+
+// Komplettes Wichteln auflösen
+function revealAll() {
+    let html = "<h3>Komplette Wichtel-Liste:</h3><ul>";
+    for (let giver in assignments) {
+        html += `<li>🎁 ${giver} → ${assignments[giver]}</li>`;
+    }
+    html += "</ul>";
+    document.getElementById("fullList").innerHTML = html;
+}
+
+// Schneefall generieren
+function createSnowflakes() {
+    const snowflakeCount = 50;
+    for (let i = 0; i < snowflakeCount; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.textContent = '❄️';
+        snowflake.style.left = Math.random() * window.innerWidth + 'px';
+        snowflake.style.fontSize = (10 + Math.random() * 20) + 'px';
+        snowflake.style.animationDuration = (5 + Math.random() * 5) + 's';
+        snowflake.style.opacity = Math.random();
+        document.body.appendChild(snowflake);
+    }
+}
+
+// Sterne generieren
+function createStars() {
+    const starCount = 100;
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * window.innerWidth + 'px';
+        star.style.top = Math.random() * window.innerHeight + 'px';
+        star.style.width = (1 + Math.random() * 2) + 'px';
+        star.style.height = star.style.width;
+        star.style.animationDuration = (1 + Math.random() * 2) + 's';
+        document.body.appendChild(star);
+    }
+}
+
+createSnowflakes();
+createStars();
+</script>
+
+</body>
+</html>
